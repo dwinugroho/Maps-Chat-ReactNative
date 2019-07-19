@@ -46,12 +46,21 @@ class HomeHeader extends React.Component {
 				  rounded
 				  icon={{name: 'user', type: 'font-awesome'}}
 				  source={{uri: User.profile == null ? 'image' : User.profile.imageUrl}}
-				  onPress={() => console.log("Works!")}
+				  onPress={() => {
+						this.props.navigation.navigate('Profile', User.profile)
+				  }}
 				  activeOpacity={0.7}
 				  containerStyle={styles.profile}
 				/>
-				<View style={styles.textWrap}>
-					<Text style={styles.headerText}>{User.profile === null ? 'Profile Name' : User.profile.name}</Text>
+				<View style={styles.textWrap} >
+					<Text 
+						style={styles.headerText}
+						onPress={() => {
+							this.props.navigation.navigate('Profile', User.profile)
+						}}
+					>
+						{User.profile === null ? 'Profile Name' : User.profile.name}
+					</Text>
 				</View>
 				<Button 
 					buttonStyle={{backgroundColor: 'rgba(0,0,0,0)'}}

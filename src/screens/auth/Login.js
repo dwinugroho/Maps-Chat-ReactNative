@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
 		width: 550,
 		resizeMode: 'contain',
 		paddingVertical: 0,
-		top: -200,
+		top: -230,
 		left: -150
 	},
 	form: {

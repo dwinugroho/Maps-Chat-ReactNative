@@ -32,6 +32,10 @@ import firebase from '../../../Firebase'
 
 import Header from '../components/Header'
 
+//============== RN Maps ============//
+
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+
 
 class Register extends Component {
 
@@ -45,14 +49,54 @@ class Register extends Component {
 			imageUrl: '',
 			nameValidate: '',
 			isLoading: false,
+			region: {
+				latitude: null,
+				longitude: null
+			}
 		};
 	}
 
 
 
 	componentDidMount() {
-       StatusBar.setHidden(false);
+       	StatusBar.setHidden(false);
+
+       	navigator.geolocation.getCurrentPosition(
+
+	      	position => {
+	        	this.setState({
+	          		region: {
+	            		latitude: position.coords.latitude,
+	            		longitude: position.coords.longitude,
+	          		}
+	        	});
+	      	},
+
+
+
+	    	(error) => console.log(error.message),
+	    	{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+	    );
+
+	    this.watchID = navigator.geolocation.watchPosition(
+	      	position => {
+	        	this.setState({
+	          		region: {
+	            		latitude: position.coords.latitude,
+	            		longitude: position.coords.longitude,
+	          		}
+	        	});
+	      	}
+	    );
+
+	    
     }
+
+    componentWillUnmount() {
+
+	    navigator.geolocation.clearWatch(this.watchID);
+	}
+
 
     nameChange = (value) => {
     	this.setState({
@@ -70,44 +114,48 @@ class Register extends Component {
 
     registerHandle = async () => {
 
-        	if (this.state.name === ''){
+    	if (this.state.name === ''){
 
-               	this.setState({
+           	this.setState({
 
-               		nameValidate: 'Must be filled!'
-               	})
-           	} else {
-           		
-           		const { name, password, email, imageUrl, uid } = this.state
+           		nameValidate: 'Must be filled!'
+           	})
+       	} else {
+       		
+       		const { name, password, email, imageUrl, uid } = this.state
 
-           		this.setState({
-           			isLoading: true,
-           		})
+       		this.setState({
+       			isLoading: true,
+       		})
 
-           		await firebase.database().ref('users/' + uid).set({
-           			name: name,
-           			email: email,
-           			imageUrl: imageUrl
-           		})
+       		await firebase.database().ref('users/' + uid).set({
+       			name: name,
+       			email: email,
+       			imageUrl: imageUrl,
+       			region: {
+       				latitude: this.state.region.latitude,
+       				longitude: this.state.region.longitude
+       			}
+       		})
 
-           		await AsyncStorage.setItem('user', uid)
+       		await AsyncStorage.setItem('user', uid)
 
-				AsyncStorage.getItem('user', (error, result) => {
+			AsyncStorage.getItem('user', (error, result) => {
 
-					if (result) {
+				if (result) {
 
-						this.setState({
-							email: '',
-							password: '',
-							isLoading: false
-						})
+					this.setState({
+						email: '',
+						password: '',
+						isLoading: false
+					})
 
-						this.props.navigation.navigate('App')
-					}
-				})
-           		
+					this.props.navigation.navigate('App')
+				}
+			})
+       		
 
-           	}
+       	}
     }
 
 	render() {

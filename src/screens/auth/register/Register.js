@@ -44,7 +44,11 @@ class Register extends Component {
 			emailValidate: '',
 			passwordValidate: '',
 			confirmPasswordValidate: '',
-			isLoading: false
+			isLoading: false,
+			region: {
+				latitude: 0,
+				longitude: 0
+			}
 		};
 	}
 
@@ -52,6 +56,21 @@ class Register extends Component {
 
 	componentDidMount() {
        StatusBar.setHidden(true);
+
+       navigator.geolocation.getCurrentPosition(
+
+	      	position => {
+	        	this.setState({
+	          		region: {
+	            		latitude: position.coords.latitude,
+	            		longitude: position.coords.longitude,
+	          		}
+	        	});
+	      	},
+
+	    	(error) => console.log(error.message),
+	    	{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+	    );
     }
 
     emailChange = (value) => {

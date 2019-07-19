@@ -6,7 +6,8 @@ import {
 	KeyboardAvoidingView,
 	TextInput,
 	FlatList,
-	ActivityIndicator
+	ActivityIndicator,
+	TouchableOpacity
 } from 'react-native'
 
 import {
@@ -49,7 +50,7 @@ class PrivateChat extends React.Component {
 		})
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		firebase.database().ref('message').child(User.profile.uid).child(this.state.person.uid).on('child_added', (result) => {
 			this.setState((prevState) => {
 				return {
@@ -83,6 +84,12 @@ class PrivateChat extends React.Component {
 				textMessage: '',
 			})
 		}
+	}
+
+	_handleNavigate = () => {
+
+		this.props.navigation.navigate('Profile', this.props.navigation.state.params)
+
 	}
 
 
@@ -140,10 +147,15 @@ class PrivateChat extends React.Component {
 						    />
 						}
 					/>
-					<View style={styles.textWrap}>
+					<TouchableOpacity 
+						style={styles.textWrap}
+						onPress={() => {
+							this._handleNavigate()
+						}}
+					>
 
 						<Text style={styles.headerText}>{this.props.navigation.state.params.name}</Text>
-					</View>
+					</TouchableOpacity>
 
 				</View>
 

@@ -28,6 +28,7 @@ import NextRegister from './screens/auth/register/NextRegister'
 
 import Home from './screens/home/Home'
 import PrivateChat from './screens/home/components/PrivateChat'
+import Profile from './screens/home/Profile'
 
  
 
@@ -76,7 +77,8 @@ const AuthStack = createStackNavigator({
 
 const AppStack = createStackNavigator({
 	Home: { screen: Home },
-	PrivateChat: { screen: PrivateChat }
+	PrivateChat: { screen: PrivateChat },
+	Profile: { screen: Profile }
 }, 
 {
 	headerMode: 'none',

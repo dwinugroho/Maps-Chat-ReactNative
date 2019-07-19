@@ -94,7 +94,7 @@ class Message extends React.Component {
 							<ListItem
 								leftAvatar={{
 							  		title: data.name[0],
-							    	source: { uri: data.imageUrl },
+							    	source: { uri: data.imageUrl === '' ? 'image' : data.imageUrl },
 								}}
 								title={data.name}
 								chevron
