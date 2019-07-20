@@ -9,7 +9,9 @@ import {
 	StatusBar,
 	Dimensions,
 	AsyncStorage,
-	Image
+	Image,
+	Button,
+	TouchableOpacity
 } from 'react-native'
 
 //============= Components ==============//
@@ -24,6 +26,12 @@ import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 //============= Firebase =============//
 
 import firebase from '../../../Firebase'
+
+
+import User from '../../../User'
+
+
+import Modal from 'react-native-modalbox';
 
 
 
@@ -49,73 +57,116 @@ class Maps extends React.Component {
 	        	latitudeDelta: LATITUDE_DELTA,
 	        	longitudeDelta: LONGITUDE_DELTA,
 	      	},
-	      	users: []
+	      	users: [],
     	};
 	}
 
 	componentDidMount() {
-	    navigator.geolocation.getCurrentPosition(
-
-	      	position => {
-	        	this.setState({
-	          		region: {
-	            		latitude: position.coords.latitude,
-	            		longitude: position.coords.longitude,
-	            		latitudeDelta: LATITUDE_DELTA,
-	            		longitudeDelta: LONGITUDE_DELTA,
-	          		}
-	        	});
-	      	},
-
-	    	(error) => console.log(error.message),
-	    	{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
-	    );
-
-	    this.watchID = navigator.geolocation.watchPosition(
-	      	position => {
-	        	this.setState({
-	          		region: {
-	            		latitude: position.coords.latitude,
-	            		longitude: position.coords.longitude,
-	            		latitudeDelta: LATITUDE_DELTA,
-	            		longitudeDelta: LONGITUDE_DELTA,
-	          		}
-	        	});
-	      	}
-	    );
 
 	    AsyncStorage.getItem('user', (err, result) => {
         	if (result) {
-        		let dbRef = firebase.database().ref('users');
-		        dbRef.on('child_added', (val) => {
-		            let person = val.val();
-		            person.uid = val.key;
 
-		            if (person.uid !== result) {
-		                
-		            	this.setState((prevState) => {
-		                    return {
-		                        users: [...prevState.users, person]
-		                    }
-		                });
+        		// setInterval(() => {
 
-		                // let pos = {
-		                //     lat: person.region.latitude,
-		                //     lng: person.region.longitude
-		                // }
+        		// 	this._getDataFriends(result)
 
-		                // Geocoder.geocodePosition(pos).then(res => {
-		                //     firebase.database().ref('users/' + person.uid + '/location/city').set({
-		                //         name: res[0].locality
-		                //     })
-		                // })
-		                // .catch(error => alert(error))
+        		// }, 30000)
 
-		            }
-		        })
+        		this._getDataFriends(result)
+
+
+		       	navigator.geolocation.getCurrentPosition(
+
+			      	position => {
+			        	this.setState({
+			          		region: {
+			            		latitude: position.coords.latitude,
+			            		longitude: position.coords.longitude,
+			            		latitudeDelta: LATITUDE_DELTA,
+			            		longitudeDelta: LONGITUDE_DELTA,
+			          		}
+			        	});
+
+			        	this._updateLocation(result, position.coords)
+			      	},
+
+			    	(error) => console.log(error.message),
+			    	{ enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+			    );
+
+			    this.watchID = navigator.geolocation.watchPosition(
+			      	position => {
+			        	this.setState({
+			          		region: {
+			            		latitude: position.coords.latitude,
+			            		longitude: position.coords.longitude,
+			            		latitudeDelta: LATITUDE_DELTA,
+			            		longitudeDelta: LONGITUDE_DELTA,
+			          		}
+			        	});
+			      	}
+
+			    );
+
+
         	}
         })
 
+	}
+
+	componentWillUpdate() {
+
+		AsyncStorage.getItem('user', (err, result) => {
+
+			firebase.database().ref('users/' + result ).update({
+	        	region: {
+	        		latitude: this.state.region.latitude,
+	        		longitude: this.state.region.longitude
+	        	}
+	        })
+
+		})
+
+	}
+
+
+
+	_getDataFriends = (uid) => {
+
+		let dbRef = firebase.database().ref('users');
+        dbRef.on('child_added', (val) => {
+            let person = val.val();
+            person.uid = val.key;
+
+            if (person.uid !== uid) {
+                
+            	this.setState((prevState) => {
+                    return {
+                        users: [...prevState.users, person]
+                    }
+                });
+
+            }
+        })
+	}
+
+
+	_updateLocation = (uid, location) => {
+
+		firebase.database().ref('users/' + uid ).update({
+        	region: {
+        		latitude: location.latitude,
+        		longitude: location.longitude
+        	}
+        })
+	}
+
+	_renderInfo = (data) => {
+		return(
+			<Text>
+				{data.name}
+			</Text>
+		)
 	}
 
 
@@ -153,7 +204,12 @@ class Maps extends React.Component {
                         ))
                     }
 
+
+
+                    
+
 		    	</MapView>
+
 			</React.Fragment>
 		)
 	}
