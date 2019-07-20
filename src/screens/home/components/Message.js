@@ -8,7 +8,8 @@ import {
 	StyleSheet,
 	Alert,
 	AsyncStorage,
-	ActivityIndicator
+	ActivityIndicator,
+	ScrollView
 } from 'react-native'
 
 //=============== Icons ================//
@@ -85,28 +86,32 @@ class Message extends React.Component {
 		return(
 			<View>
 				<HeaderChat title="Message" />
+				<ScrollView>
 				{
 					this.state.isLoading ?
 					<ActivityIndicator style={{top: 200}} size="large" color="#0FA391" />
 					:
 					this.state.users.map((data) => {
 						return(
-							<ListItem
-								leftAvatar={{
-							  		title: data.name[0],
-							    	source: { uri: data.imageUrl === '' ? 'image' : data.imageUrl },
-								}}
-								title={data.name}
-								chevron
-								key={data.uid}
-								containerStyle={{borderBottomWidth: 1, borderColor: '#f5f5f5'}}
-								onPress={() => {
-									this.props.navigation.navigate('PrivateChat', data)
-							  }}
-							/>
+
+								<ListItem
+									leftAvatar={{
+								  		title: data.name[0],
+								    	source: { uri: data.imageUrl === '' ? 'image' : data.imageUrl },
+									}}
+									title={data.name}
+									chevron
+									key={data.uid}
+									containerStyle={{borderBottomWidth: 1, borderColor: '#f5f5f5'}}
+									onPress={() => {
+										this.props.navigation.navigate('PrivateChat', data)
+								  }}
+								/>
+							
 						)
 					})
 				}
+				</ScrollView>
 			</View>
 		)
 	}

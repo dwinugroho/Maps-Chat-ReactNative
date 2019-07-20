@@ -11,7 +11,8 @@ import {
 	AsyncStorage,
 	Image,
 	Button,
-	TouchableOpacity
+	TouchableOpacity,
+	FlatList
 } from 'react-native'
 
 //============= Components ==============//
@@ -32,6 +33,14 @@ import User from '../../../User'
 
 
 import Modal from 'react-native-modalbox';
+
+import {
+	Avatar
+} from 'react-native-elements'
+
+//============= Navigation ==============//
+
+import { withNavigation } from 'react-navigation'
 
 
 
@@ -169,17 +178,31 @@ class Maps extends React.Component {
 		)
 	}
 
+	_trackFriends = async (item) => {
+		await _mapView.animateToRegion({
+			latitude: item.location.latitude,
+			longitude: item.location.longitude,
+			latitudeDelta: LATITUDE_DELTA,
+		  	longitudeDelta: LONGITUDE_DELTA
+		})
+
+		this.props.navigation.closeDrawer()
+	}
+
 
 
 	componentWillUnmount() {
 	    navigator.geolocation.clearWatch(this.watchID);
 	}
 
+
+
 	render () {
 
 		return (
 			<React.Fragment>
 				<MapView
+					ref={(MapView) => {_mapView = MapView}}
 			        provider={ PROVIDER_GOOGLE }
 			        style={ styles.container }
 			        showsUserLocation={ true }
@@ -204,11 +227,61 @@ class Maps extends React.Component {
                         ))
                     }
 
-
-
-                    
-
 		    	</MapView>
+
+		    	<View style={{
+		    		backgroundColor: 'white',
+		    		width: '100%',
+		    		zIndex: 999,
+		    		position: 'absolute',
+		    		bottom: 0
+		    	}}>
+		    		<FlatList
+		    			data={this.state.users}
+		    			horizontal={true}
+		    			keyExtractor={(item) => {item.uid.toString()}}
+		    			renderItem={({item}) => {
+		    				return(
+		    					<TouchableOpacity style={{
+		    						margin: 10,
+		    						alignItems: 'center',
+
+		    					}}
+		    					onPress={() => _mapView.animateToRegion({
+									latitude: item.region.latitude,
+									longitude: item.region.longitude,
+									latitudeDelta: LATITUDE_DELTA,
+								  	longitudeDelta: LONGITUDE_DELTA
+								})}
+		    					onLongPress={() => {
+		    						this.props.navigation.navigate('PrivateChat', item)
+		    					}}
+		    					>
+		    						<Avatar
+										size={30}
+										rounded
+										title={item.name[0]}
+										source={{uri: item.imageUrl}}
+										onPress={() => console.log("Works!")}
+										activeOpacity={0.7}
+										onPress={() => _mapView.animateToRegion({
+											latitude: item.region.latitude,
+											longitude: item.region.longitude,
+											latitudeDelta: LATITUDE_DELTA,
+										  	longitudeDelta: LONGITUDE_DELTA
+										})}
+										onLongPress={() => {
+				    						this.props.navigation.navigate('PrivateChat', item)
+				    					}}
+									/>
+									<Text>
+										{item.name}
+									</Text>
+		    					</TouchableOpacity>
+		    				)
+		    			}}
+		    		/>
+		    	</View>
 
 			</React.Fragment>
 		)
@@ -223,4 +296,4 @@ const styles = StyleSheet.create({
 	}
 })
 
-export default Maps
+export default withNavigation(Maps)
