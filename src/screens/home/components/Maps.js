@@ -297,5 +297,3 @@ const styles = StyleSheet.create({
 })
 
 export default withNavigation(Maps)
-
-//
